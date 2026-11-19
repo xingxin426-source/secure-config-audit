@@ -1,37 +1,74 @@
 # Secure Config Audit
 
-A small, read-only Python tool for reviewing file permissions and recording SHA-256 baselines in a directory you own or are authorized to assess.
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-informational)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Status-Learning%20Project-blue)
 
-## What it checks
+A lightweight, read-only Python utility for reviewing local file permissions and creating optional SHA-256 file inventories.
 
-- Files writable by group or other users (POSIX systems).
-- Optional SHA-256 inventory to help identify later file changes.
-- Symlinks are reported but never followed; oversized files can be excluded.
-- JSON report includes relative paths and findings only.
+## Features
 
-This is a learning/demo utility, not a substitute for an endpoint security product or a formal audit. It does not change files, contact remote systems, or attempt exploitation.
+- Identifies files with group-write or other-write permission bits on POSIX systems.
+- Optionally computes SHA-256 digests for regular files.
+- Reports symbolic links without following them.
+- Skips hashing files larger than a configurable size limit.
+- Produces a JSON report for later review.
 
 ## Requirements
 
-Python 3.10+; standard library only.
+- Python 3.10 or newer
+- Python standard library only
 
-## Usage
+## Quick start
+
+Clone the repository:
 
 ```bash
-python src/audit.py ./examples/sample-tree --json report.json
-python src/audit.py ./examples/sample-tree --hash --json report.json
+git clone https://github.com/xingxin426-source/secure-config-audit.git
+cd secure-config-audit
 ```
 
-Exit codes: `0` no findings, `1` findings detected, `2` input or runtime error.
+Run a basic scan against the included synthetic sample:
 
-## Safe use
+```bash
+python src/audit.py examples/sample-tree
+```
 
-Only scan directories you own or have permission to review. Reports can reveal internal filenames; store and share them carefully. Test with the included synthetic example directory.
+Generate a JSON report and include SHA-256 digests:
 
-## Project status
+```bash
+python src/audit.py examples/sample-tree --hash --json report.json
+```
 
-Portfolio learning project. The findings are advisory and platform-dependent.
+Set a different maximum file size for hashing:
+
+```bash
+python src/audit.py examples/sample-tree --hash --max-bytes 5000000
+```
+
+## Example output
+
+The command prints a short summary. When `--json` is supplied, the report contains:
+
+- `generated_at`: UTC timestamp
+- `root`: scanned directory
+- `findings`: permission observations and unreadable-file notices
+- `inventory`: discovered entries and optional hashes
+- `hashes_skipped`: count of files excluded by the size limit
+
+## Security and privacy notes
+
+- Only scan directories you own or are explicitly authorized to assess.
+- The tool is intended for local inventory and education; it does not remediate permissions.
+- SHA-256 here is a file-integrity digest, **not** password hashing, authentication, or proof of file authenticity.
+- Review generated reports before sharing them: paths and filenames may reveal private information.
+- Hashing can encounter file changes between metadata inspection and file reading; do not treat this utility as a tamper-proof forensic collector.
+
+## Project scope
+
+This is a portfolio learning project, not a certified security scanner or a replacement for configuration-management, endpoint-security, or forensic tools. Findings are advisory and may vary by operating system and filesystem.
 
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).
